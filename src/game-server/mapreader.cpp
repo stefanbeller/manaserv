@@ -122,7 +122,7 @@ Map *MapReader::readMap(xmlNodePtr node)
                     {
                         continue;
                     }
-                    
+
                     for_each_xml_child_node(propertyNode, propertiesNode)
                     {
                         if (xmlStrEqual(propertyNode->name, BAD_CAST "property"))
@@ -344,17 +344,6 @@ void MapReader::setTileWithGid(Map *map, int x, int y, unsigned gid)
              FlippedVerticallyFlag |
              FlippedAntiDiagonallyFlag);
 
-    // Find the tileset with the highest firstGid below/eq to gid
-    unsigned set = gid;
-    for (std::vector<unsigned>::const_iterator i = ::tilesetFirstGids.begin(),
-         i_end = ::tilesetFirstGids.end(); i != i_end; ++i)
-    {
-        if (gid < *i)
-            break;
-
-        set = *i;
-    }
-
-    if (gid != set)
+    if (gid != 0)
         map->blockTile(x, y, BLOCKTYPE_WALL);
 }
