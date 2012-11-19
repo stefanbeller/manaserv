@@ -195,13 +195,12 @@ void Being::setDestination(const Point &dst)
 Path Being::findPath()
 {
     Map *map = getMap()->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
-    int startX = getPosition().x / tileWidth;
-    int startY = getPosition().y / tileHeight;
-    int destX = mDst.x / tileWidth, destY = mDst.y / tileHeight;
 
-    return map->findPath(startX, startY, destX, destY, getWalkMask());
+    Point start = map->getTilePosition(getPosition().x, getPosition().y);
+
+    Point dest = map->getTilePosition(mDst.x, mDst.y);
+
+    return map->findPath(start.x, start.y, dest.x, dest.y, getWalkMask());
 }
 
 void Being::updateDirection(const Point &currentPos, const Point &destPos)
@@ -311,14 +310,10 @@ void Being::move()
     }
 
     Map *map = getMap()->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
-    int tileSX = getPosition().x / tileWidth;
-    int tileSY = getPosition().y / tileHeight;
-    int tileDX = mDst.x / tileWidth;
-    int tileDY = mDst.y / tileHeight;
+    Point srcTile = map->getTilePosition(getPosition());
+    Point destTile = map->getTilePosition(mDst);
 
-    if (tileSX == tileDX && tileSY == tileDY)
+    if (srcTile == destTile)
     {
         if (mAction == WALK)
             setAction(STAND);
@@ -366,14 +361,13 @@ void Being::move()
 
     setAction(WALK);
 
-    Point prev(tileSX, tileSY);
     Point pos;
     do
     {
         Point next = mPath.front();
         mPath.pop_front();
         // SQRT2 is used for diagonal movement.
-        mMoveTime += (prev.x == next.x || prev.y == next.y) ?
+        mMoveTime += (srcTile.x == next.x || srcTile.y == next.y) ?
                        getModifiedAttribute(ATTR_MOVE_SPEED_RAW) :
                        getModifiedAttribute(ATTR_MOVE_SPEED_RAW) * SQRT2;
 
@@ -385,8 +379,7 @@ void Being::move()
         }
 
         // Position the actor in the middle of the tile for pathfinding purposes
-        pos.x = next.x * tileWidth + (tileWidth / 2);
-        pos.y = next.y * tileHeight + (tileHeight / 2);
+        pos = map->getTileCenter(next);
     }
     while (mMoveTime < WORLD_TICK_MS);
     setPosition(pos);

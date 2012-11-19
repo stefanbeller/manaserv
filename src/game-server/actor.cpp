@@ -31,10 +31,8 @@ Actor::~Actor()
     if (MapComposite *mapComposite = getMap())
     {
         Map *map = mapComposite->getMap();
-        int tileWidth = map->getTileWidth();
-        int tileHeight = map->getTileHeight();
-        Point oldP = getPosition();
-        map->freeTile(oldP.x / tileWidth, oldP.y / tileHeight, getBlockType());
+        Point currentTile = map->getTilePosition(mPos);
+        map->freeTile(currentTile, getBlockType());
     }
 }
 
@@ -44,14 +42,12 @@ void Actor::setPosition(const Point &p)
     if (MapComposite *mapComposite = getMap())
     {
         Map *map = mapComposite->getMap();
-        int tileWidth = map->getTileWidth();
-        int tileHeight = map->getTileHeight();
-        if ((mPos.x / tileWidth != p.x / tileWidth
-            || mPos.y / tileHeight != p.y / tileHeight))
+        Point currentTile = map->getTilePosition(mPos);
+        Point desiredTile = map->getTilePosition(p);
+        if ( currentTile != desiredTile)
         {
-            map->freeTile(mPos.x / tileWidth, mPos.y / tileHeight,
-                          getBlockType());
-            map->blockTile(p.x / tileWidth, p.y / tileHeight, getBlockType());
+            map->freeTile(currentTile, getBlockType());
+            map->blockTile(desiredTile, getBlockType());
         }
     }
 
@@ -66,16 +62,12 @@ void Actor::setMap(MapComposite *mapComposite)
     if (MapComposite *oldMapComposite = getMap())
     {
         Map *oldMap = oldMapComposite->getMap();
-        int oldTileWidth = oldMap->getTileWidth();
-        int oldTileHeight = oldMap->getTileHeight();
-        oldMap->freeTile(p.x / oldTileWidth, p.y / oldTileHeight,
-                         getBlockType());
+        Point currentTile = oldMap->getTilePosition(p);
+        oldMap->freeTile(currentTile, getBlockType());
     }
     Entity::setMap(mapComposite);
     Map *map = mapComposite->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
-    map->blockTile(p.x / tileWidth, p.y / tileHeight, getBlockType());
+    map->blockTile(map->getTilePosition(getPosition()), getBlockType());
     /* the last line might look illogical because the current position is
      * invalid on the new map, but it is necessary to block the old position
      * because the next call of setPosition() will automatically free the old

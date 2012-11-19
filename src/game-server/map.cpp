@@ -96,7 +96,8 @@ class Location
         int Fcost;              /**< Estimation of total path cost */
 };
 
-Map::Map(int width, int height, int tileWidth, int tileHeight):
+Map::Map(Orientation orientation, int width, int height, int tileWidth, int tileHeight):
+    mOrientation(orientation),
     mWidth(width), mHeight(height),
     mTileWidth(tileWidth), mTileHeight(tileHeight),
     mMetaTiles(width * height)
@@ -184,6 +185,32 @@ void Map::freeTile(int x, int y, BlockType type)
                 break;
         }
     }
+}
+
+Point Map::getTilePosition(int px, int py) const
+{
+    if (mOrientation == Map::MAP_ORTHOGONAL) {
+        return Point(px / getTileWidth(), py / getTileHeight());
+    } else { // ISOMETRIC
+        const int x_const = px - getHeight() * getTileWidth() / 2;
+        const int y_const = py - getTileHeight() / 2 ;
+        const int x = (x_const / getTileWidth()) + (y_const / getTileHeight());
+        const int y = (- x_const / getTileWidth()) + (y_const / getTileHeight());
+        return Point(x, y);
+    }
+}
+
+Point Map::getTileCenter(const Point &tile_coord) const
+{
+    Point ret;
+    if (mOrientation == Map::MAP_ORTHOGONAL) {
+        ret.x = tile_coord.x * mTileWidth + (mTileWidth / 2);
+        ret.y = tile_coord.y * mTileHeight + (mTileHeight / 2);
+    } else { // isometric
+        ret.x = ((-tile_coord.x + tile_coord.y + mWidth) * mTileWidth/2);
+        ret.y = ((+tile_coord.x + tile_coord.y + 1) * mTileHeight/2);
+    }
+    return ret;
 }
 
 bool Map::getWalk(int x, int y, char walkmask) const

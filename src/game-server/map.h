@@ -109,10 +109,17 @@ class MapObject
 class Map
 {
     public:
+        enum Orientation
+        {
+            MAP_UNKNOWN = -1,
+            MAP_ORTHOGONAL,
+            MAP_ISOMETRIC
+        };
+
         /**
          * Constructor that takes initial map size as parameters.
          */
-        Map(int width, int height,
+        Map(Orientation orientation, int width, int height,
             int tileWidth, int tileHeight);
 
         ~Map();
@@ -123,25 +130,62 @@ class Map
         void setSize(int width, int height);
 
         /**
-         * Marks a tile as occupied
+         * Marks a tile as occupied, x,y in tile coordinates
          */
         void blockTile(int x, int y, BlockType type);
 
         /**
-         * Marks a tile as unoccupied
+         * Marks a tile as occupied, x,y in tile coordinates
+         */
+        void blockTile(Point p, BlockType type)
+            { blockTile(p.x, p.y, type); }
+
+        /**
+         * Marks a tile as unoccupied,  x,y in tile coordinates
          */
         void freeTile(int x, int y, BlockType type);
+
+        /**
+         * Marks a tile as unoccupied,  x,y in tile coordinates
+         */
+        void freeTile(Point p, BlockType type)
+            { freeTile(p.x, p.y, type); }
 
         /**
          * Gets walkability for a tile with a blocking bitmask
          */
         bool getWalk(int x, int y, char walkmask = BLOCKMASK_WALL) const;
 
+        bool getWalk(Point p, char walkmask = BLOCKMASK_WALL) const
+            { return getWalk(p.x,p.y, walkmask); }
+
+        /**
+         * @brief getTilePosition converts pixel position to tile position.
+         * @param pixel position in pixels.
+         * @return the position in tile coordinates
+         */
+        Point getTilePosition(int x, int y) const;
+        Point getTilePosition(Point pixel) const
+        { return getTilePosition(pixel.x, pixel.y); }
+
+        /**
+         * @brief Returns the pixel position of the middle of the given tile.
+         * @param pixel position in tiles.
+         * @return the position in pixel coordinates
+         */
+        Point getTileCenter(const Point &tileCoordinates) const;
+
         /**
          * Tells if a tile location is within the map range.
          */
         bool contains(int x, int y) const
         { return x >= 0 && y >= 0 && x < mWidth && y < mHeight; }
+
+        /**
+         * Tells if a tile location is within the map range.
+         */
+        bool contains(const Point &p) const
+        { return p.x >= 0 && p.y >= 0 && p.x < mWidth && p.y < mHeight; }
 
         /**
          * Returns the width of this map.
@@ -199,6 +243,14 @@ class Map
                       int maxCost = 20) const;
 
         /**
+         * Find a path from one location to the next.
+         */
+        Path findPath(const Point &start, const Point &dest,
+                      unsigned char walkmask,
+                      int maxCost = 20) const
+            { return findPath(start.x, start.y, dest.x, dest.y, walkmask, maxCost); }
+
+        /**
          * Blockmasks for different entities
          */
         static const unsigned char BLOCKMASK_WALL = 0x80;     // = bin 1000 0000
@@ -207,6 +259,7 @@ class Map
 
     private:
         // map properties
+        Orientation mOrientation;
         int mWidth, mHeight;
         int mTileWidth, mTileHeight;
         std::map<std::string, std::string> mProperties;

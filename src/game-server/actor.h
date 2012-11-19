@@ -59,10 +59,10 @@ class Actor : public Entity
         ~Actor();
 
         /**
-         * Sets the coordinates. Also updates the walkmap of the map the actor
+         * Sets the coordinates in pixels. Also updates the walkmap of the map the actor
          * is on.
          *
-         * @param p the coordinates.
+         * @param p the coordinates in pixels.
          */
         void setPosition(const Point &p);
 

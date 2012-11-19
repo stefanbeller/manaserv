@@ -54,7 +54,13 @@ Map *MapReader::readMap(xmlNodePtr node)
     int h = XML::getProperty(node, "height", 0);
     int tileW = XML::getProperty(node, "tilewidth", DEFAULT_TILE_LENGTH);
     int tileH = XML::getProperty(node, "tileheight", DEFAULT_TILE_LENGTH);
-    Map *map = new Map(w, h, tileW, tileH);
+
+    const std::string orientation = XML::getProperty(node, "orientation", "orthogonal");
+    const Map::Orientation orient = (orientation == "orthogonal") ? Map::MAP_ORTHOGONAL :
+                                    (orientation == "isometric") ? Map::MAP_ISOMETRIC :
+                                     Map::MAP_UNKNOWN;
+
+    Map *map = new Map(orient,w, h, tileW, tileH);
 
     for (node = node->xmlChildrenNode; node != NULL; node = node->next)
     {
@@ -230,7 +236,7 @@ void MapReader::readLayer(xmlNodePtr node, Map *map)
 
         for (int i = 0; i < binLen - 3; i += 4)
         {
-            unsigned gid = binData[i] |
+            const unsigned gid = binData[i] |
                     (binData[i + 1] << 8)  |
                     (binData[i + 2] << 16) |
                     (binData[i + 3] << 24);

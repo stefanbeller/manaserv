@@ -74,7 +74,6 @@ void SpawnArea::update()
 
         // Find a free spawn location. Give up after 10 tries
         int c = 10;
-        Point position;
         const int x = mZone.x;
         const int y = mZone.y;
         const int width = mZone.w;
@@ -91,20 +90,21 @@ void SpawnArea::update()
 
         if (being)
         {
+            int rx, ry;
             do
             {
-                position = Point(x + rand() % width, y + rand() % height);
+                 rx = x + rand() % width,
+                 ry = y + rand() % height;
                 c--;
             }
-            while (!realMap->getWalk(position.x / realMap->getTileWidth(),
-                                     position.y / realMap->getTileHeight(),
+            while (!realMap->getWalk(realMap->getTilePosition(rx, ry),
                                      being->getWalkMask()) && c);
 
             if (c)
             {
                 being->addListener(&mSpawnedListener);
                 being->setMap(map);
-                being->setPosition(position);
+                being->setPosition(Point(rx, ry));
                 being->clearDestination();
                 GameState::enqueueInsert(being);
 

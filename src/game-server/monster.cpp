@@ -350,19 +350,18 @@ int Monster::calculatePositionPriority(Point position, int targetPriority)
     unsigned range = mSpecy->getTrackRange();
 
     Map *map = getMap()->getMap();
-    int tileWidth = map->getTileWidth();
-    int tileHeight = map->getTileHeight();
+    Point currentPos = map->getTilePosition(thisPos);
+    Point desiredPos = map->getTilePosition(position);
 
     // Check if we already are on this position
-    if (thisPos.x / tileWidth == position.x / tileWidth &&
-        thisPos.y / tileHeight == position.y / tileHeight)
+    if (currentPos == desiredPos)
     {
         return targetPriority *= range;
     }
 
     Path path;
-    path = map->findPath(thisPos.x / tileWidth, thisPos.y / tileHeight,
-                         position.x / tileWidth, position.y / tileHeight,
+    path = map->findPath(currentPos.x, currentPos.y,
+                         desiredPos.x, desiredPos.y,
                          getWalkMask(),
                          range);
 

@@ -419,7 +419,7 @@ static int chr_warp(lua_State *s)
     Map *map = m->getMap();
 
     // If the wanted warp place is unwalkable
-    if (!map->getWalk(x / map->getTileWidth(), y / map->getTileHeight()))
+    if (!map->getWalk(map->getTilePosition(x, y)))
     {
         int c = 50;
         LOG_INFO("chr_warp called with a non-walkable place.");
@@ -427,9 +427,11 @@ static int chr_warp(lua_State *s)
         {
             x = rand() % map->getWidth();
             y = rand() % map->getHeight();
+
         } while (!map->getWalk(x, y) && --c);
-        x *= map->getTileWidth();
-        y *= map->getTileHeight();
+        Point p = map->getTileCenter(Point(x, y));
+        x = p.x;
+        y = p.y;
     }
     GameState::enqueueWarp(q, m, x, y);
 
@@ -2146,7 +2148,7 @@ static int is_walkable(lua_State *s)
     Map *map = checkCurrentMap(s)->getMap();
 
     // If the wanted warp place is unwalkable
-    if (map->getWalk(x / map->getTileWidth(), y / map->getTileHeight()))
+    if (map->getWalk(map->getTilePosition(x, y)))
         lua_pushboolean(s, 1);
     else
         lua_pushboolean(s, 0);

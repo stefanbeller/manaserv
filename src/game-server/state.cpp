@@ -505,9 +505,8 @@ bool GameState::insert(Entity *ptr)
     // Check that coordinates are actually valid.
     Actor *obj = static_cast< Actor * >(ptr);
     Map *mp = map->getMap();
-    Point pos = obj->getPosition();
-    if ((int)pos.x / mp->getTileWidth() >= mp->getWidth() ||
-        (int)pos.y / mp->getTileHeight() >= mp->getHeight())
+    Point pos = mp->getTileCenter(pos);
+    if (mp->contains(pos))
     {
         LOG_ERROR("Tried to insert an actor at position " << pos.x << ','
                   << pos.y << " outside map " << map->getID() << '.');
