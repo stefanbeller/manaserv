@@ -36,8 +36,13 @@ Actor::~Actor()
     }
 }
 
+#include <iostream>
+using namespace std;
+
 void Actor::setPosition(const Point &p)
 {
+    cout << "Actor::setPosition " << p.x <<" "<<p.y<<endl;
+
     // Update blockmap
     if (MapComposite *mapComposite = getMap())
     {
