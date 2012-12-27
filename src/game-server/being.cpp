@@ -185,8 +185,10 @@ void Being::died()
     }
 }
 
+#include <iostream>
 void Being::setDestination(const Point &dst)
 {
+    std::cout << dst.x << " "<<dst.y<<" "<< getMap()->getMap()->getTilePosition(dst).x<<" "<< getMap()->getMap()->getTilePosition(dst).y<< std::endl;
     mDst = dst;
     raiseUpdateFlags(UPDATEFLAG_NEW_DESTINATION);
     mPath.clear();
