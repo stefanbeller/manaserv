@@ -130,11 +130,16 @@ const std::string &Map::getProperty(const std::string &key) const
         return empty;
     return i->second;
 }
-
+#include <iostream>
+using namespace std;
 void Map::blockTile(int x, int y, BlockType type)
 {
+    if (!contains(x, y))
+        cout << "Map::blockTile " << x <<" "<< y << "  "<< type<<" not containing position!"<<endl;
     if (type == BLOCKTYPE_NONE || !contains(x, y))
         return;
+
+    cout << "Map::blockTile " << x <<" "<< y << "  "<< type<<endl;
 
     MetaTile &metaTile = mMetaTiles[x + y * mWidth];
 
